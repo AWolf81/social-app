@@ -6,6 +6,7 @@ export default class Username extends React.Component {
         super(props);
 
         this.state = {
+            loading: true,
             name: '',
             username: '',
             email: '',
@@ -15,6 +16,7 @@ export default class Username extends React.Component {
     componentDidMount() {
         axios.get('/users/' + this.props.match.params.username).then(function (response) {
             this.setState({
+                loading: false,
                 name: response.data.user.name,
                 username: response.data.user.username,
                 email: response.data.user.email,
