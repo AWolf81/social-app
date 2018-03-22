@@ -6,24 +6,25 @@ export default class Home extends React.Component {
         super(props);
 
         this.state = {
+            loading: true,
             name: '',
             username: '',
             email: '',
         }
     }
 
-    render() {
-        const self = this;
-        axios.defaults.baseURL = process.env.REACT_APP_API_ADDRESS;
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+    componentDidMount() {
         axios.get('/auth/login').then(function (response) {
-            self.setState({
+            this.setState({
+                loading: false,
                 name: response.data.user.name,
                 username: response.data.user.username,
                 email: response.data.user.email,
             })
-        });
+        }.bind(this));
+    }
 
+    render() {
         return (
             <div className="row">
                 <div className="col-12">
