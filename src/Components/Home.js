@@ -14,14 +14,16 @@ export default class Home extends React.Component {
     }
 
     componentDidMount() {
-        axios.get('/auth/login').then(function (response) {
-            this.setState({
-                loading: false,
-                name: response.data.user.name,
-                username: response.data.user.username,
-                email: response.data.user.email,
-            })
-        }.bind(this));
+        if (localStorage.getItem('token') !== null) {
+            axios.get('/auth/login').then(function (response) {
+                this.setState({
+                    loading: false,
+                    name: response.data.user.name,
+                    username: response.data.user.username,
+                    email: response.data.user.email,
+                })
+            }.bind(this));
+        }
     }
 
     render() {

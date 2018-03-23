@@ -8,6 +8,7 @@ import Nav from './Components/Nav';
 import Home from './Components/Home';
 import Username from './Components/Username';
 import Users from './Components/Users';
+import Register from './Components/Register';
 
 axios.defaults.baseURL = process.env.REACT_APP_API_ADDRESS;
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
@@ -20,6 +21,7 @@ const Routes = (match) => (
             <div className="container">
                 <Route exact path="/" component={Home} />
                 <Route exact path="/users" component={Users} />
+                <Route exact path="/register" component={Register} />
                 <Route path="/user/:username" match={match} component={Username} />
             </div>
         </div>
