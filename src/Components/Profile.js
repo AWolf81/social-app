@@ -1,6 +1,7 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
-import auth from "../Services/Auth";
+import StatusList from "./Status/StatusList";
+import axios from "axios";
 
 class Profile extends React.Component {
   constructor(props) {
@@ -15,15 +16,41 @@ class Profile extends React.Component {
     };
   }
 
+  setUser = user => {
+    this.setState({
+      loading: false,
+      ...user
+    });
+  };
+
   componentDidMount() {
     // console.log("mounted profile");
-    auth.getUser().then(user => {
-      // console.log("loaded user", user);
+    const { username } = this.props.match.params;
 
-      this.setState({
-        loading: false,
-        ...user
-      });
+    console.log("profile will mount", username, this.props.match.params);
+
+    // if (username) {
+    this.loadUser(username);
+    // } else {
+    // auth.fetchUser().then(user => {
+    //   // console.log("loaded user", user);
+    //   setUser(user);
+    // });
+    // }
+  }
+
+  // getDerivedStateFromProps(props) {
+  //   console.log("derived prop", props.match.params);
+  //   // this.loadUser(props.match.params.username);
+  //   return null; // null means no state modifications
+  // }
+
+  loadUser(username) {
+    console.log("load profile for user:", username);
+    axios.get(`/users/${username}`).then(response => {
+      const { user } = response.data;
+      console.log("response", user);
+      this.setUser(user);
     });
   }
 
@@ -35,6 +62,9 @@ class Profile extends React.Component {
           <p>Name: {this.state.name}</p>
           <p>Username: {this.state.username}</p>
           <p>Email: {this.state.email}</p>
+        </div>
+        <div className="col-12">
+          <StatusList username={this.props.match.params.username} />
         </div>
       </div>
     );

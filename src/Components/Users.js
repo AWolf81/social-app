@@ -1,39 +1,37 @@
-import React from 'react';
+import React from "react";
+import { Link } from "react-router-dom";
 import axios from "axios/index";
 
 export default class Users extends React.Component {
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props);
 
-        this.state = {
-            users: []
-        }
-    }
+    this.state = {
+      users: []
+    };
+  }
 
-    componentDidMount() {
-        this.users = axios.get('/users').then(function (response) {
-            this.setState({
-                users: response.data.users
-            });
-        }.bind(this));
-    }
+  componentDidMount() {
+    this.users = axios.get("/users").then(response => {
+      this.setState({
+        users: response.data.users
+      });
+    });
+  }
 
-    render() {
-        return (
-            <div>
-                <h1>User</h1>
-                {this.state.users.map((user) => {
-                    const profileLink = '/user/' + user.username;
-                    return (
-                        <div key={user.id}>
-                            <p>{user.name}</p>
-                            <a href={profileLink}>View Profile</a>
-                        </div>
-                    )
-                }
-
-                )}
+  render() {
+    return (
+      <div>
+        <h1>User</h1>
+        <div className="list-group">
+          {this.state.users.map(user => (
+            <div key={user.id} className="list-group-item">
+              <p>{user.name}</p>
+              <Link to={`/user/${user.username}`}>View Profile</Link>
             </div>
-        )
-    }
+          ))}
+        </div>
+      </div>
+    );
+  }
 }
