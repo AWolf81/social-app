@@ -1,7 +1,8 @@
 import React from "react";
+import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { withAlert } from "react-alert";
-import auth from "../Services/Auth";
+import localAuthSvc from "../Services/LocalAuth";
 import FontAwesomeIcon from "@fortawesome/react-fontawesome";
 import {
   faUser,
@@ -11,24 +12,14 @@ import {
 } from "@fortawesome/fontawesome-free-solid";
 
 class Register extends React.Component {
-  constructor(props) {
-    super(props);
+  state = {
+    name: "",
+    username: "",
+    email: "",
+    password: ""
+  };
 
-    this.handleRegister = this.handleRegister.bind(this);
-    this.handleName = this.handleName.bind(this);
-    this.handleUsername = this.handleUsername.bind(this);
-    this.handleEmail = this.handleEmail.bind(this);
-    this.handlePassword = this.handlePassword.bind(this);
-
-    this.state = {
-      name: "",
-      username: "",
-      email: "",
-      password: ""
-    };
-  }
-
-  handleRegister(e) {
+  handleRegister = e => {
     e.preventDefault();
     const newUser = {
       name: this.state.name,
@@ -37,50 +28,59 @@ class Register extends React.Component {
       password: this.state.password
     };
 
-    auth
-      .register(newUser)
-      .then(status => {
-        console.log("registered", status);
-        this.props.alert.success("Successfully registerd!", {
-          timeout: 2000, // custom timeout just for this one alert
-          //onOpen: () => { console.log('hey') }, // callback that will be executed after this alert open
-          onClose: () => {
-            // callback that will be executed after this alert is removed);
-            // redirect to home
-            this.props.history.push("/profile");
-          }
-        });
-        // this.setState({
-        //   name: user.name,
-        //   username: user.username,
-        //   email: user.email,
-        //   password: user.password
-        // });
-      })
-      .catch(function(error) {
-        // @todo: show flash message with error
-        // errors:
-        // - server not available
-        // - already registered
-        console.log(error);
-      });
-  }
+    this.props.dispatch(localAuthSvc.register(newUser));
+    // auth
+    //   .register(newUser)
+    //   .then(({ errors, success }) => {
+    //     console.log("registered", errors, success);
 
-  handleName(name) {
-    this.setState({ name: name.target.value });
-  }
+    //     if (success) {
+    //       this.props.alert.success("Successfully registerd!", {
+    //         timeout: 2000, // custom timeout just for this one alert
+    //         //onOpen: () => { console.log('hey') }, // callback that will be executed after this alert open
+    //         onClose: () => {
+    //           // callback that will be executed after this alert is removed);
+    //           // redirect to home
+    //           this.props.history.push("/profile");
+    //         }
+    //       });
+    //     } else if (errors) {
+    //       for (let [, errorText] of Object.entries(errors)) {
+    //         // later highlight field in form
+    //         this.props.alert.error(`Sign-up failed! ${errorText}`);
+    //       }
+    //     }
+    //     // this.setState({
+    //     //   name: user.name,
+    //     //   username: user.username,
+    //     //   email: user.email,
+    //     //   password: user.password
+    //     // });
+    //   })
+    //   .catch(function(error) {
+    //     // @todo: show flash message with error
+    //     // errors:
+    //     // - server not available
+    //     // - already registered
+    //     console.log(error);
+    //   });
+  };
 
-  handleUsername(username) {
-    this.setState({ username: username.target.value });
-  }
+  handleNam = e => {
+    this.setState({ name: e.target.value });
+  };
 
-  handleEmail(email) {
-    this.setState({ email: email.target.value });
-  }
+  handleUsername = e => {
+    this.setState({ username: e.target.value });
+  };
 
-  handlePassword(password) {
-    this.setState({ password: password.target.value });
-  }
+  handleEmail = e => {
+    this.setState({ email: e.target.value });
+  };
+
+  handlePassword = e => {
+    this.setState({ password: e.target.value });
+  };
 
   render() {
     return (
@@ -100,7 +100,7 @@ class Register extends React.Component {
                 </div>
                 <input
                   type="text"
-                  onChange={e => this.handleName(e)}
+                  onChange={this.handleName}
                   className="form-control"
                   id="inlineFormInputGroupUsername"
                   placeholder="Full Name"
@@ -119,7 +119,7 @@ class Register extends React.Component {
                 </div>
                 <input
                   type="text"
-                  onChange={e => this.handleUsername(e)}
+                  onChange={this.handleUsername}
                   className="form-control"
                   id="inlineFormInputGroupUsername"
                   placeholder="Username"
@@ -141,7 +141,7 @@ class Register extends React.Component {
                 </div>
                 <input
                   type="email"
-                  onChange={e => this.handleEmail(e)}
+                  onChange={this.handleEmail}
                   className="form-control"
                   id="inlineFormInputGroupUsername"
                   placeholder="Email Address"
@@ -188,4 +188,6 @@ class Register extends React.Component {
   }
 }
 
-export default withRouter(withAlert(Register));
+export default connect(state => ({ ...state }))(
+  withRouter(withAlert(Register))
+);

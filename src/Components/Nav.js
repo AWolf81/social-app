@@ -1,52 +1,63 @@
 import React from "react";
-import { Link, withRouter } from "react-router-dom";
-import auth from "../Services/Auth";
+import { Link } from "react-router-dom";
+import { withAlert } from "react-alert";
+import localAuthSvc from "../Services/LocalAuth";
+import { connect } from "react-redux";
+// import { Subscribe } from "unstated";
 
 class Nav extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.handleEmail = this.handleEmail.bind(this);
-    this.handlePassword = this.handlePassword.bind(this);
-    this.handleLogout = this.handleLogout.bind(this);
-
-    this.state = {
-      token: false,
-      username: "",
-      password: ""
-    };
-  }
+  state = {
+    email: "",
+    password: ""
+  };
 
   handleLogin = e => {
     e.preventDefault();
-    auth
-      .login(this.state.email, this.state.password)
-      .then(response => {
-        // auth success --> redirect to home
-        this.props.history.push("/profile");
-      })
-      .catch(error => {
-        // login failed --> show password or username incorrect
-        console.log(error);
-      });
+    console.log("handle login", this.state);
+    this.props.dispatch(
+      localAuthSvc.loginRequest(this.state.email, this.state.password)
+    );
+  };
+  // handleLogin = e => {
+  //   e.preventDefault();
+  //   auth
+  //     .login(this.state.email, this.state.password)
+  //     .then(response => {
+  //       const { username } = response.data.user;
+  //       // auth success --> redirect to home
+  //       this.props.history.push(`/profile/${username}`);
+  //     })
+  //     .catch(({ response }) => {
+  //       // login failed --> show password or username incorrect
+  //       console.log("error", response);
+  //       if (response.data.error === "invalid_credentials") {
+  //         this.props.alert.error("Email or Password incorrect!", {
+  //           timeout: 2000
+  //         });
+  //       }
+  //     });
+  // };
+
+  handleEmail = e => {
+    this.setState({ email: e.target.value });
   };
 
-  handleEmail(email) {
-    this.setState({ email: email.target.value });
-  }
+  handlePassword = e => {
+    this.setState({ password: e.target.value });
+  };
 
-  handlePassword(password) {
-    this.setState({ password: password.target.value });
-  }
-
-  handleLogout(e) {
+  handleLogout = e => {
     e.preventDefault();
-    auth.logout();
-    this.props.history.push("/");
-  }
+    this.props.dispatch(localAuthSvc.logout());
+    // this.props.history.push("/");
+  };
 
   render() {
-    const authenticated = auth.isAuthenticated();
+    // const authenticated = auth.isAuthenticated();
+    // const { user } = this.props;
+
+    const loggedIn = this.props.isLoggedIn;
+    console.log("render nav", loggedIn);
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <Link className="navbar-brand" to="/">
@@ -71,7 +82,7 @@ class Nav extends React.Component {
                 Home <span className="sr-only">(current)</span>
               </Link>
             </li>
-            {authenticated ? (
+            {loggedIn ? (
               /*protected links - only for auth. users*/
               <li className="nav-item">
                 <Link className="nav-link" to="/users">
@@ -80,20 +91,20 @@ class Nav extends React.Component {
               </li>
             ) : null}
           </ul>
-          {!authenticated ? (
+          {!loggedIn ? (
             <form className="form-inline my-2 my-lg-0">
               <input
                 className="form-control mr-sm-1"
                 type="email"
                 placeholder="Email"
-                onChange={e => this.handleEmail(e)}
+                onChange={this.handleEmail}
                 aria-label="Email"
               />
               <input
                 className="form-control mr-sm-1"
                 type="password"
                 placeholder="Password"
-                onChange={e => this.handlePassword(e)}
+                onChange={this.handlePassword}
                 aria-label="Password"
               />
               <button
@@ -110,14 +121,20 @@ class Nav extends React.Component {
               </Link>
             </form>
           ) : (
-            <form className="form-inline my-2 my-lg-0">
-              <button
-                className="btn btn-sm btn-success my-1 my-sm-0"
-                onClick={this.handleLogout}
-              >
-                Logout
-              </button>
-            </form>
+            <div>
+              <span>
+                Welcome,
+                {this.props.user && this.props.user.username}!
+              </span>
+              <form className="form-inline my-2 my-lg-0">
+                <button
+                  className="btn btn-sm btn-success my-1 my-sm-0"
+                  onClick={this.handleLogout}
+                >
+                  Logout
+                </button>
+              </form>
+            </div>
           )}
         </div>
       </nav>
@@ -125,4 +142,10 @@ class Nav extends React.Component {
   }
 }
 
-export default withRouter(Nav);
+function mapStateToProps(state) {
+  return {
+    ...state.localAuth
+  };
+}
+
+export default connect(mapStateToProps)(withAlert(Nav));

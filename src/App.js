@@ -1,39 +1,69 @@
 import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import axios from "axios";
-
+// import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
+import { ConnectedRouter } from "react-router-redux";
+import { createSelector } from "reselect";
+import { RestrictionRoute as ProtectedRoute } from "react-redux-restriction";
+// import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
+// import { ConnectedRouter } from "react-router-redux";
 
 import Nav from "./Components/Nav";
 import Home from "./Components/Home";
-import Username from "./Components/Username";
+// import Username from "./Components/Username";
 import Users from "./Components/Users";
 import Profile from "./Components/Profile";
-import ProtectedRoute from "./Components/ProtectedRoute";
+// import ProtectedRoute from "./Components/ProtectedRoute";
 import Register from "./Components/Register";
 
+import history from "./history";
 // import auth from "./Services/Auth";
 
-axios.defaults.baseURL = process.env.REACT_APP_API_ADDRESS;
-axios.defaults.headers.common["Authorization"] =
-  "Bearer " + localStorage.getItem("token");
+// axios.defaults.baseURL = process.env.REACT_APP_API_ADDRESS;
+// axios.defaults.headers.common["Authorization"] =
+//   "Bearer " + localStorage.getItem("token");
+const selectIsLoggedIn = createSelector(
+  state => state.localAuth,
+  user => !!user.isLoggedIn
+);
 
 const Routes = match => {
   return (
-    <Router>
+    // <Router>
+    // <Switch>
+    <ConnectedRouter history={history}>
+      {/* ConnectedRouter will use the store from Provider automatically */}
       <div>
         <Nav />
-
         <div className="container">
-          <Route exact path="/" component={Home} />
-          <ProtectedRoute exact path="/profile" component={Profile} />
-          <ProtectedRoute exact path="/users" component={Users} />
+          <Switch>
+            <Route exact path="/" component={Home} />
+            <Route exact path="/register" component={Register} />
+            <ProtectedRoute
+              exact
+              path="/profile/:username"
+              match={match}
+              component={Profile}
+              data={selectIsLoggedIn}
+            />
+            <ProtectedRoute exact path="/users" component={Users} />
+            <ProtectedRoute
+              path="/user/:username"
+              match={match}
+              component={Profile}
+              data={selectIsLoggedIn}
+            />
 
-          <Route exact path="/register" component={Register} />
-          <Route path="/user/:username" match={match} component={Username} />
+            <ProtectedRoute
+              path="/(user|profile)"
+              data={!selectIsLoggedIn}
+              render={() => <Redirect to="/" />}
+            />
+          </Switch>
         </div>
       </div>
-    </Router>
+    </ConnectedRouter>
+    // </Router>
   );
 };
 

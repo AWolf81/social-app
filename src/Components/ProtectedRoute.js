@@ -1,13 +1,21 @@
 import React from "react";
+import { connect } from "react-redux";
 import { Route, Redirect } from "react-router-dom";
-import auth from "../Services/Auth";
+// import { localAuthSvc } from "../Services/LocalAuth";
 
-export default ({ component: Component, ...rest }) => {
+const ProtectedRoute = ({ component: Component, ...rest }) => {
+  console.log("prot route render");
+  const ConnectedRoute = connect(state => {
+    return {
+      isLoggedIn: state.localAuth.isLoggedIn
+    };
+  })(Route);
+
   return (
-    <Route
+    <ConnectedRoute
       {...rest}
       render={props =>
-        auth.isAuthenticated() ? (
+        props.isLoggedIn ? (
           <Component {...props} />
         ) : (
           <Redirect
@@ -21,3 +29,5 @@ export default ({ component: Component, ...rest }) => {
     />
   );
 };
+
+export default ProtectedRoute;
