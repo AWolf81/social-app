@@ -2,19 +2,22 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { routerReducer, routerMiddleware } from "react-router-redux";
-import "./index.css";
 import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 import { Provider as AlertProvider } from "react-alert";
 import AlertTemplate from "react-alert-template-basic";
 import localAuthSvc from "./Services/LocalAuth";
 import authReducer from "./reducers/auth";
+import {
+  loadingBarReducer,
+  loadingBarMiddleware
+} from "react-redux-loading-bar";
 import history from "./history";
-
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 // Logger with default options
 import logger from "redux-logger";
+import "./index.css";
 // import AuthService from "react-auth-flow"; // will check it later --> for now create from scratch
 
 import "./config/axios";
@@ -36,7 +39,8 @@ const enhancer = composeEnhancers(
 
 const reducers = combineReducers({
   localAuth: authReducer,
-  router: routerReducer
+  router: routerReducer,
+  loadingBar: loadingBarReducer
 });
 
 const store = createStore(reducers, enhancer);

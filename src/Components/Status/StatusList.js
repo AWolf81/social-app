@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import axios from "axios";
 import StatusItem from "./StatusItem";
 
@@ -19,31 +19,26 @@ class StatusList extends Component {
 
   fetchStatus() {
     console.log(this.props);
-    if (this.props.username) {
-      return axios.get(`/users/${this.props.username}/status_updates`);
-    } else {
-      return axios.get("/status");
-    }
+    return axios.get(`/users/${this.props.username}/status_updates`);
+    // if (this.props.username) {
+    // } else {
+    //   return axios.get("/status");
+    // }
   }
 
   render() {
     const { loading, statusData } = this.state;
-    console.log("render status", statusData);
-    return (
-      <Fragment>
-        {loading ? (
-          "loading..."
-        ) : statusData && statusData.length > 0 ? (
-          <div className="list-group">
-            {statusData.map(status => (
-              <StatusItem key={status.id} status={status} />
-            ))}
-          </div>
-        ) : (
-          <div className="alert alert-info">Nothing posted yet.</div>
-        )}
-      </Fragment>
-    );
+    return !loading ? (
+      statusData && statusData.length > 0 ? (
+        <div className="list-group">
+          {statusData.map(status => (
+            <StatusItem key={status.id} status={status} />
+          ))}
+        </div>
+      ) : (
+        <div className="alert alert-info">Nothing posted yet.</div>
+      )
+    ) : null;
   }
 }
 

@@ -55,7 +55,8 @@ class Profile extends React.Component {
   }
 
   render() {
-    return (
+    const { loading } = this.state;
+    return !loading ? (
       <div className="row">
         <div className="col-12">
           <h1 className="text-center">Profile</h1>
@@ -67,7 +68,7 @@ class Profile extends React.Component {
           <StatusList username={this.props.match.params.username} />
         </div>
       </div>
-    );
+    ) : null;
   }
 }
 
