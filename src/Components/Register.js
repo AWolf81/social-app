@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import { withAlert } from "react-alert";
 import localAuthSvc from "../Services/LocalAuth";
 import FontAwesomeIcon from "@fortawesome/react-fontawesome";
 import {
@@ -66,7 +65,7 @@ class Register extends React.Component {
     //   });
   };
 
-  handleNam = e => {
+  handleName = e => {
     this.setState({ name: e.target.value });
   };
 
@@ -189,5 +188,5 @@ class Register extends React.Component {
 }
 
 export default connect(state => ({ ...state }))(
-  withRouter(withAlert(Register))
+  withRouter(Register)
 );

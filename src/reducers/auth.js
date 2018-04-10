@@ -5,25 +5,23 @@ export default (state = { user: undefined, isLoggedIn: false }, action) => {
     case "LOGGED_IN":
       return {
         ...state,
-        isLoggedIn: true,
-        user: action.user
+        isLoggedIn: true
       };
     case "LOGOUT":
       return {
         ...state,
-        ...action.payload
+        user: undefined,
+        isLoggedIn: false
       };
     case "USER_RECEIVED":
       return {
         ...state,
-        user: action.user,
-        isLoggedIn: true
+        user: action.user
       };
-    case "REGISTER_RESULT":
-      // todo add notifications here
+    case "USER_REGISTERED":
       return {
         ...state,
-        registerResult: action.registerResult
+        ...action.payload
       };
     default:
       return state;

@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { withAlert } from "react-alert";
+// import { withAlert } from "react-alert";
 import localAuthSvc from "../Services/LocalAuth";
 import { connect } from "react-redux";
-// import { Subscribe } from "unstated";
+import Progress from "react-progress-2";
 
 class Nav extends React.Component {
   state = {
@@ -15,7 +15,7 @@ class Nav extends React.Component {
     e.preventDefault();
     console.log("handle login", this.state);
     this.props.dispatch(
-      localAuthSvc.loginRequest(this.state.email, this.state.password)
+      localAuthSvc.login(this.state.email, this.state.password)
     );
   };
   // handleLogin = e => {
@@ -56,10 +56,12 @@ class Nav extends React.Component {
     // const authenticated = auth.isAuthenticated();
     // const { user } = this.props;
 
-    const loggedIn = this.props.isLoggedIn;
+    const { isLoggedIn: loggedIn } = this.props;
+
     console.log("render nav", loggedIn);
     return (
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
+        <Progress.Component />
         <Link className="navbar-brand" to="/">
           Navbar
         </Link>
@@ -82,8 +84,7 @@ class Nav extends React.Component {
                 Home <span className="sr-only">(current)</span>
               </Link>
             </li>
-            {loggedIn ? (
-              /*protected links - only for auth. users*/
+            {loggedIn /*protected links - only for auth. users*/ ? (
               <li className="nav-item">
                 <Link className="nav-link" to="/users">
                   Users
@@ -148,4 +149,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(withAlert(Nav));
+export default connect(mapStateToProps)(Nav);

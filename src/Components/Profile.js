@@ -2,6 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import StatusList from "./Status/StatusList";
 import axios from "axios";
+import { connect } from "react-redux";
 
 class Profile extends React.Component {
   constructor(props) {
@@ -23,13 +24,12 @@ class Profile extends React.Component {
     });
   };
 
-  componentDidMount() {
+  componentWillMount() {
     // console.log("mounted profile");
     const { username } = this.props.match.params;
 
     console.log("profile will mount", username, this.props.match.params);
 
-    // if (username) {
     this.loadUser(username);
     // } else {
     // auth.fetchUser().then(user => {
@@ -41,7 +41,7 @@ class Profile extends React.Component {
 
   // getDerivedStateFromProps(props) {
   //   console.log("derived prop", props.match.params);
-  //   // this.loadUser(props.match.params.username);
+  //   this.loadUser(props.match.params.username);
   //   return null; // null means no state modifications
   // }
 
@@ -56,6 +56,16 @@ class Profile extends React.Component {
 
   render() {
     const { loading } = this.state;
+
+    // if (isLoggedIn && !this.fetchUser) {
+    //   const { username } = this.props.match.params;
+    //   this.fetchUser = true;
+    //   console.log("profile will mount", username, this.props.match.params);
+
+    //   // if (username) {
+    //   this.loadUser(username);
+    // }
+
     return !loading ? (
       <div className="row">
         <div className="col-12">
@@ -68,8 +78,16 @@ class Profile extends React.Component {
           <StatusList username={this.props.match.params.username} />
         </div>
       </div>
-    ) : null;
+    ) : (
+      <div>loading...</div>
+    );
   }
 }
 
-export default withRouter(Profile);
+function mapStateToProps(state) {
+  return {
+    ...state.localAuth
+  };
+}
+
+export default connect(mapStateToProps)(withRouter(Profile));

@@ -4,24 +4,23 @@ import { Provider } from "react-redux";
 import { routerReducer, routerMiddleware } from "react-router-redux";
 import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
-import { Provider as AlertProvider } from "react-alert";
-import AlertTemplate from "react-alert-template-basic";
-import localAuthSvc from "./Services/LocalAuth";
 import authReducer from "./reducers/auth";
-import {
-  loadingBarReducer,
-  loadingBarMiddleware
-} from "react-redux-loading-bar";
+import notificationReducer from "./reducers/notification";
+import io from "socket.io-client";
+import { reducer as reduxIo } from "redux.io";
+
 import history from "./history";
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 // Logger with default options
 import logger from "redux-logger";
 import "./index.css";
+import "react-progress-2/main.css";
 // import AuthService from "react-auth-flow"; // will check it later --> for now create from scratch
 
 import "./config/axios";
 
+const socket = reduxIo(io);
 const routerMiddle = routerMiddleware(history);
 
 const composeEnhancers =
@@ -39,17 +38,12 @@ const enhancer = composeEnhancers(
 
 const reducers = combineReducers({
   localAuth: authReducer,
+  notification: notificationReducer,
   router: routerReducer,
-  loadingBar: loadingBarReducer
+  socket
 });
 
 const store = createStore(reducers, enhancer);
-
-const action = localAuthSvc.fetchUser();
-
-if (action) {
-  store.dispatch(action);
-}
 
 // let authReducer = AuthService.init({
 //   store: store,
@@ -61,9 +55,7 @@ if (action) {
 
 ReactDOM.render(
   <Provider store={store}>
-    <AlertProvider template={AlertTemplate}>
-      <App />
-    </AlertProvider>
+    <App />
   </Provider>,
   document.getElementById("root")
 );

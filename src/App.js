@@ -1,6 +1,6 @@
-import React from "react";
-import LoadingBar from "react-redux-loading-bar";
+import React, { Component } from "react";
 import { Route, Switch, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
 import { ConnectedRouter } from "react-router-redux";
 import { createSelector } from "reselect";
 import { RestrictionRoute as ProtectedRoute } from "react-redux-restriction";
@@ -11,56 +11,90 @@ import Home from "./Components/Home";
 import Users from "./Components/Users";
 import Profile from "./Components/Profile";
 import Register from "./Components/Register";
+import Notification from "./Components/Notification";
 
 import history from "./history";
+import localAuthSvc from "./Services/LocalAuth";
 
-const selectIsLoggedIn = createSelector(
-  state => state.localAuth,
-  localAuth => !!localAuth.isLoggedIn
-);
+class App extends Component {
+  componentDidMount() {
+    const { dispatch } = this.props;
+    const action = localAuthSvc.getUser();
 
-const Routes = match => {
-  return (
-    <ConnectedRouter history={history}>
-      {/* ConnectedRouter will use the store from Provider automatically */}
-      <div>
-        <LoadingBar />
-        <Nav />
-        <div className="container">
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route exact path="/register" component={Register} />
+    if (action.user) {
+      dispatch(action);
+      dispatch(localAuthSvc.loggedInAction());
+    }
+  }
 
-            {/* <ProtectedRoute
-            path="/(users|profile|user)"
-            not
-            data={selectIsLoggedIn}
-            render={() => <Redirect to="/" />}
-          /> */}
-            <ProtectedRoute
-              exact
-              path="/profile/:username"
-              match={match}
-              component={Profile}
-              data={selectIsLoggedIn}
-            />
-            <ProtectedRoute
-              exact
-              path="/users"
-              component={Users}
-              data={selectIsLoggedIn}
-            />
-            <ProtectedRoute
-              path="/user/:username"
-              match={match}
-              component={Profile}
-              data={selectIsLoggedIn}
-            />
-          </Switch>
+  // static getDerivedStateFromProps(nextProps, prevState) {
+  //   const { alert, visible, message, messageType, timeout } = nextProps;
+  //   if (visible) {
+  //     alert.show(message, { timeout });
+  //   } else {
+  //     alert.remove(alert);
+  //   }
+  //   console.log("new props in app", visible, alert);
+  //   return null; // no state change required
+  // }
+
+  render() {
+    const selectIsLoggedIn = createSelector(
+      state => state.localAuth,
+      localAuth => !!localAuth.isLoggedIn
+    );
+
+    const { match } = this.props;
+
+    // if (visible) {
+    //   console.log("show message", visible, alert);
+
+    // } else {
+    //   // alert.remove(alert);
+    // }
+
+    return (
+      <ConnectedRouter history={history}>
+        {/* ConnectedRouter will use the store from Provider automatically */}
+        <div>
+          <Nav />
+          <Notification />
+          <div className="container">
+            <Switch>
+              <Route exact path="/" component={Home} />
+              <Route exact path="/register" component={Register} />
+
+              <ProtectedRoute
+                exact
+                path="/profile/:username"
+                match={match}
+                component={Profile}
+                data={selectIsLoggedIn}
+              />
+              <ProtectedRoute
+                exact
+                path="/users"
+                component={Users}
+                data={selectIsLoggedIn}
+              />
+              <ProtectedRoute
+                path="/user/:username"
+                match={match}
+                component={Profile}
+                data={selectIsLoggedIn}
+              />
+            </Switch>
+          </div>
         </div>
-      </div>
-    </ConnectedRouter>
-  );
-};
+      </ConnectedRouter>
+    );
+  }
+}
 
-export default Routes;
+function mapStateToProps(state) {
+  return {
+    ...state.notification
+  };
+}
+
+export default connect(mapStateToProps)(App);
