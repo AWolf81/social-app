@@ -8,7 +8,7 @@ import { connect as withSocket } from "redux.io";
 
 // import ChatClient from "./chat-client.js";
 
-const ns = "/"; //http://localhost/";
+const ns = "http://localhost:9000/";
 const options =
   { ...options } ||
   (ownProps => ({
@@ -35,8 +35,10 @@ class StatusList extends Component {
 
     const { socket, channel } = this.props;
 
+    console.log("statuslist mounted", socket);
     socket.once("connect", () => {
-      socket.on("*", data => {
+      console.log("connected", arguments, socket);
+      socket.on("status_feed:App\\Events\\NewStatus", data => {
         console.log("received", data);
       });
       // .on('user:join', (dispatch, ...eventData) => { ... })
@@ -47,11 +49,14 @@ class StatusList extends Component {
   }
 
   addStatus = async e => {
+    console.log("add new status");
     e.preventDefault();
     try {
       await axios.post("/status_updates/create", {
         message: this.state.newStatus
       });
+
+      console.log("posted", this.state.newStatus);
       // success
       // !!!!!!!!!!! todo: check that only profile owner can post status updates --> needs restriction on backend as well.
       this.setState({
